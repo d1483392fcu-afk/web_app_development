@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}收支明細{% endblock %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <h2 class="fw-bold mb-0"><i class="bi bi-card-list"></i> 收支明細列表</h2>
+    <a href="{{ url_for('records.new') }}" class="btn btn-premium px-4 shadow-sm">
+        <i class="bi bi-plus-lg"></i> 記一筆
+    </a>
+</div>
+
+<div class="glass-card p-0 overflow-hidden shadow-lg border-opacity-50">
+    <div class="table-responsive">
+        <table class="table table-borderless table-premium mb-0">
+            <thead style="background: rgba(0,0,0,0.2);">
+                <tr>
+                    <th class="ps-4 py-3 text-secondary w-15">日期</th>
+                    <th class="py-3 text-secondary w-15">分類</th>
+                    <th class="py-3 text-secondary w-15">帳戶</th>
+                    <th class="py-3 text-secondary w-40">備註</th>
+                    <th class="py-3 text-secondary text-end w-15">金額</th>
+                    <th class="pe-4 py-3 text-secondary text-end">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td class="ps-4 align-middle font-monospace">{{ record.date }}</td>
+                    <td class="align-middle">
+                        <span class="badge rounded-pill {% if record.type == 'income' %}badge-income{% else %}badge-expense{% endif %} px-3 py-2 shadow-sm">
+                            {{ record.category_name or '未分類' }}
+                        </span>
+                    </td>
+                    <td class="align-middle">
+                        <span class="text-light fw-medium"><i class="bi bi-bank me-1 text-secondary"></i>{{ record.account_name }}</span>
+                    </td>
+                    <td class="align-middle text-truncate" style="max-width: 250px;">
+                        {{ record.note or '<span class="text-secondary opacity-50 fst-italic">無備註</span>'|safe }}
+                    </td>
+                    <td class="align-middle text-end fw-bold fs-5 {% if record.type == 'income' %}text-income{% else %}text-expense{% endif %}">
+                        {% if record.type == 'income' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(record.amount) }}
+                    </td>
+                    <td class="pe-4 align-middle text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('records.edit', id=record.id) }}" class="btn btn-sm btn-outline-info border-0 shadow-sm"><i class="bi bi-pencil"></i></a>
+                            <form action="{{ url_for('records.delete', id=record.id) }}" method="POST" onsubmit="return confirm('確定要刪除這筆紀錄嗎？');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 shadow-sm"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center justify-content-center pt-3 pb-4">
+                            <i class="bi bi-receipt fs-1 text-secondary opacity-25 mb-3" style="font-size: 3rem !important;"></i>
+                            <h5 class="text-secondary">目前沒有任何紀錄</h5>
+                            <p class="text-secondary opacity-75 mb-0">趕快記下您的第一筆收支吧！</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
