@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}個人記帳簿{% endblock %} | 財務管家</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Styles (Premium UI) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard.index') }}">
+                <i class="bi bi-wallet2 text-primary fs-4"></i>
+                <span class="fs-4 fw-bold">Antigravity Finance</span>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-1">
+                    <li class="nav-item px-2">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}"><i class="bi bi-grid"></i> 總覽</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a class="nav-link" href="{{ url_for('records.index') }}"><i class="bi bi-card-list"></i> 收支明細</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a class="nav-link" href="{{ url_for('accounts.index') }}"><i class="bi bi-safe"></i> 帳戶總管</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a class="nav-link" href="{{ url_for('categories.index') }}"><i class="bi bi-tags"></i> 分類標籤</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a class="nav-link" href="{{ url_for('budgets.index') }}"><i class="bi bi-pie-chart"></i> 預算設定</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <a class="btn btn-premium" href="{{ url_for('records.new') }}">
+                            <i class="bi bi-plus-lg"></i> 記一筆
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages (Toast Style) -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show alert-custom d-flex align-items-center gap-2 animate-fade-in" role="alert" style="background: rgba(30,41,59,0.9); color: white;">
+                    {% if category == 'success' %}<i class="bi bi-check-circle-fill text-success fs-5"></i>
+                    {% elif category == 'danger' %}<i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                    {% else %}<i class="bi bi-info-circle-fill text-info fs-5"></i>{% endif %}
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container py-5 animate-fade-in">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 自動關閉 Flash messages
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

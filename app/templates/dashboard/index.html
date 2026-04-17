@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}首頁總覽{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-5">
+    <!-- 總餘額卡片 -->
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100 d-flex flex-column justify-content-center py-4">
+            <h6 class="text-secondary text-uppercase tracking-wide mb-3 fw-bold"><i class="bi bi-cash-stack"></i> 總資產餘額</h6>
+            <h2 class="display-5 fw-bold mb-0">${{ "{:,.2f}".format(total_balance) }}</h2>
+        </div>
+    </div>
+    <!-- 本月收入卡片 -->
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100 d-flex flex-column justify-content-center py-4">
+            <h6 class="text-secondary text-uppercase tracking-wide mb-3 fw-bold"><i class="bi bi-arrow-down-circle text-income"></i> 本月收入</h6>
+            <h2 class="display-5 fw-bold text-income mb-0">+${{ "{:,.2f}".format(monthly_income) }}</h2>
+        </div>
+    </div>
+    <!-- 本月花費卡片 -->
+    <div class="col-md-4">
+        <div class="glass-card text-center h-100 d-flex flex-column justify-content-center py-4">
+            <h6 class="text-secondary text-uppercase tracking-wide mb-3 fw-bold"><i class="bi bi-arrow-up-circle text-expense"></i> 本月花費</h6>
+            <h2 class="display-5 fw-bold text-expense mb-0">-${{ "{:,.2f}".format(monthly_expenses) }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 帳戶清單 -->
+    <div class="col-lg-5">
+        <div class="glass-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3 opacity-75">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-safe2"></i> 各區帳戶水位</h5>
+                <a href="{{ url_for('accounts.index') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">管理</a>
+            </div>
+            
+            {% if account_balances %}
+            <div class="d-flex flex-column gap-3">
+                {% for name, balance in account_balances.items() %}
+                <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: rgba(255,255,255,0.03);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-circle">
+                            <i class="bi bi-bank2 fs-5"></i>
+                        </div>
+                        <span class="fs-5">{{ name }}</span>
+                    </div>
+                    <span class="fs-5 fw-semibold">${{ "{:,.2f}".format(balance) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-secondary text-center my-5">尚未設定任何帳戶</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 最新明細 -->
+    <div class="col-lg-7">
+        <div class="glass-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3 opacity-75">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-activity"></i> 最新收支明細</h5>
+                <a href="{{ url_for('records.new') }}" class="btn btn-premium btn-sm"><i class="bi bi-plus-lg"></i> 記一筆</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-borderless table-premium">
+                    <thead>
+                        <tr class="text-secondary border-bottom border-secondary">
+                            <th>日期</th>
+                            <th>分類</th>
+                            <th>帳戶</th>
+                            <th>備註</th>
+                            <th class="text-end">金額</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in recent_records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>
+                                <span class="badge rounded-pill {% if record.type == 'income' %}badge-income{% else %}badge-expense{% endif %} px-3 py-2">
+                                    {{ record.category_name or '未分類' }}
+                                </span>
+                            </td>
+                            <td>{{ record.account_name }}</td>
+                            <td class="text-truncate" style="max-width: 150px;">{{ record.note }}</td>
+                            <td class="text-end fw-bold {% if record.type == 'income' %}text-income{% else %}text-expense{% endif %} fs-5">
+                                {% if record.type == 'income' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(record.amount) }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-secondary py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+                                尚無收支紀錄
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if recent_records %}
+            <div class="text-center mt-3">
+                <a href="{{ url_for('records.index') }}" class="text-decoration-none" style="color: var(--accent-primary)">檢視所有明細 <i class="bi bi-arrow-right"></i></a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}分類標籤{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <h2 class="fw-bold mb-0"><i class="bi bi-tags"></i> 分類標籤管理</h2>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-premium" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
+        <i class="bi bi-plus-lg"></i> 建立新分類
+    </button>
+</div>
+
+<div class="row g-4">
+    <!-- 收入分類 -->
+    <div class="col-md-6">
+        <div class="glass-card h-100 p-4 border-top border-4" style="border-top-color: var(--income) !important;">
+            <h4 class="fw-bold text-income mb-4"><i class="bi bi-box-arrow-in-down"></i> 收入分類</h4>
+            <div class="d-flex flex-wrap gap-2">
+                {% for cat in categories if cat.type == 'income' %}
+                <div class="position-relative d-inline-block">
+                    <span class="badge badge-income fs-6 px-3 py-2 rounded-pill pe-5 shadow-sm">{{ cat.name }}</span>
+                    <form action="{{ url_for('categories.delete', id=cat.id) }}" method="POST" class="position-absolute" style="top: 2px; right: 2px;" onsubmit="return confirm('確定刪除 {{ cat.name }} 嗎？');">
+                        <button type="submit" class="btn btn-sm btn-link text-income p-1 border-0"><i class="bi bi-x-circle-fill"></i></button>
+                    </form>
+                </div>
+                {% else %}
+                <p class="text-secondary w-100 text-center my-4 opacity-75">尚無收入分類</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 支出分類 -->
+    <div class="col-md-6">
+        <div class="glass-card h-100 p-4 border-top border-4" style="border-top-color: var(--expense) !important;">
+            <h4 class="fw-bold text-expense mb-4"><i class="bi bi-box-arrow-up"></i> 支出分類</h4>
+            <div class="d-flex flex-wrap gap-2">
+                {% for cat in categories if cat.type == 'expense' %}
+                <div class="position-relative d-inline-block">
+                    <span class="badge badge-expense fs-6 px-3 py-2 rounded-pill pe-5 shadow-sm">{{ cat.name }}</span>
+                    <form action="{{ url_for('categories.delete', id=cat.id) }}" method="POST" class="position-absolute" style="top: 2px; right: 2px;" onsubmit="return confirm('確定刪除 {{ cat.name }} 嗎？');">
+                        <button type="submit" class="btn btn-sm btn-link text-expense p-1 border-0"><i class="bi bi-x-circle-fill"></i></button>
+                    </form>
+                </div>
+                {% else %}
+                <p class="text-secondary w-100 text-center my-4 opacity-75">尚無支出分類</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="newCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0" style="background: var(--bg-secondary); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-3">
+        <h5 class="modal-title fw-bold">新增分類標籤</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('categories.create') }}" method="POST">
+          <div class="modal-body p-4">
+            <div class="mb-4">
+                <label class="form-label text-light fw-semibold mb-3">收支類型</label>
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" id="typeExpense" value="expense" checked>
+                        <label class="form-check-label text-expense fw-bold" for="typeExpense">支出</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" id="typeIncome" value="income">
+                        <label class="form-check-label text-income fw-bold" for="typeIncome">收入</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label text-light fw-semibold mb-2">分類名稱</label>
+                <input type="text" class="form-control form-control-lg border-secondary text-light bg-dark" id="name" name="name" placeholder="例如：餐飲、薪資、交通" required>
+            </div>
+          </div>
+          <div class="modal-footer border-top border-light border-opacity-10 pt-3">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-premium px-4">建立分類</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

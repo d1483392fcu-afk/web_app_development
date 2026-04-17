@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}預算設定{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <h2 class="fw-bold mb-0"><i class="bi bi-pie-chart"></i> 預算設定</h2>
+    <button type="button" class="btn btn-premium" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+        <i class="bi bi-plus-lg"></i> 新增預算監控
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for budget in budgets %}
+    <div class="col-md-6 col-lg-4">
+        <div class="glass-card position-relative overflow-hidden h-100 shadow-sm border-top border-4" style="border-top-color: var(--accent-primary) !important;">
+            <div class="position-absolute top-0 end-0 mt-3 me-3">
+                <form action="{{ url_for('budgets.delete', id=budget.id) }}" method="POST" onsubmit="return confirm('確定要刪除這個預算設定嗎？');">
+                    <button type="submit" class="btn btn-sm border-0 text-danger bg-danger bg-opacity-10 rounded-circle" style="width: 35px; height: 35px;"><i class="bi bi-trash"></i></button>
+                </form>
+            </div>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary bg-opacity-25 text-light px-3 py-2 rounded-pill mb-2"><i class="bi bi-calendar3"></i> {{ budget.month }}</span>
+                <h4 class="fw-bold mt-2 text-white">
+                    {% if budget.category_id %}
+                        {{ budget.category_name }} <span class="fs-6 text-secondary fw-normal">單項預算</span>
+                    {% else %}
+                        整月總支出 <span class="fs-6 text-secondary fw-normal">總預算</span>
+                    {% endif %}
+                </h4>
+            </div>
+            
+            <div class="mt-4 bg-dark bg-opacity-25 p-3 rounded">
+                <div class="d-flex justify-content-between text-secondary mb-1 fs-6">
+                    <span>設定額度</span>
+                    <span class="fw-bold text-light">${{ "{:,.0f}".format(budget.amount) }}</span>
+                </div>
+                <div class="progress mt-3" style="height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <div class="progress-bar bg-accent-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p class="text-end text-secondary mt-2 mb-0" style="font-size: 0.75rem;">(目前未整合實際花費進度條，僅作示意)</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5 glass-card d-flex flex-column align-items-center justify-content-center shadow-sm" style="min-height: 400px;">
+            <i class="bi bi-bullseye fs-1 text-secondary mb-4 opacity-50" style="font-size: 4rem !important;"></i>
+            <h3 class="text-white fw-bold mb-3">尚未設定任何預算</h3>
+            <p class="text-secondary mb-4 fs-5">透過設定預算來管理您每個月的超額開支，並養成好的記帳習慣！</p>
+            <button type="button" class="btn btn-premium px-4 py-2 mt-2 fs-5" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                開始設定預算
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="newBudgetModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0" style="background: var(--bg-secondary); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-3">
+        <h5 class="modal-title fw-bold"><i class="bi bi-pie-chart me-2"></i>設定新預算</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('budgets.create') }}" method="POST">
+          <div class="modal-body p-4">
+            <div class="mb-4">
+                <label class="form-label text-light fw-semibold mb-2">預算月份</label>
+                <input type="month" class="form-control form-control-lg border-secondary text-light bg-dark" name="month" id="budgetMonth" required>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label text-light fw-semibold mb-2">預算分類</label>
+                <select class="form-select form-select-lg border-secondary bg-dark text-light" name="category_id">
+                    <option value="" style="font-weight: bold; color: var(--accent-primary);">-- 設定當月「總支出預算」 --</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }} (單項分類)</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text text-secondary mt-2"><i class="bi bi-info-circle"></i> 您可以選擇特定分類限制，或留空來設定整月的總支出上限。</div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold mb-2">預算金額</label>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-dark border-secondary text-secondary">$</span>
+                    <input type="number" step="1" min="1" class="form-control border-secondary text-light bg-dark fw-bold text-premium" name="amount" placeholder="例如：15000" required>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer border-top border-light border-opacity-10 pt-3">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-premium px-4">確認設定</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 預設月份為當月
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const monthInput = document.getElementById('budgetMonth');
+        if (!monthInput.value) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            monthInput.value = `${yyyy}-${mm}`;
+        }
+    });
+</script>
+{% endblock %}
